@@ -1,0 +1,13 @@
+ZPosition(cm) 0.63
+Scope z_position_plane_only_not_axially_integrated_core
+BenchmarkComparable no
+FuelSelection c5g7_17x17_geometry_mask
+Normalization z_position_plane_mean_fuel_pin_power_equals_1
+FuelPinCount 1056
+RawMean 419.8873003747774
+MinimumRaw 100.10270345267882
+ZPositionMinimumNormalized 0.23840374158334984
+MinimumLocation assembly=11 axial_cell=0 j=15 i=15 x_cm=40.950000000000003 y_cm=40.950000000000003
+MaximumRaw 1052.2317435346724
+ZPositionMaximumNormalized 2.5059861124532357
+MaximumLocation assembly=10 axial_cell=0 j=4 i=3 x_cm=4.4100000000000001 y_cm=5.6699999999999999

@@ -1,0 +1,15 @@
+﻿status=CONVERGED
+critical_depth_cm=83.6373193917
+cs_k=1.000009435
+cs_k_stderr=3.54E-05
+cs_slope_per_cm=-0.00626680264
+cs_slope_stderr_per_cm=8.9633472016E-05
+approx_depth_stderr_cm=0.00564881360298
+target_k=1
+verification_status=PASSED
+verification_k=1.0000969
+verification_k_stderr=3.58E-05
+verification_abs_error_pcm=9.69
+history=C:\Users\user\Desktop\C5G7_CorrelatedSampling\results\critical_rod_newton_cs_local_20260908_154933\newton_history.csv
+last_cs_log=C:\Users\user\Desktop\C5G7_CorrelatedSampling\results\critical_rod_newton_cs_local_20260908_154933\iter_03_retry_2_d83p63731939.log
+verification_log=C:\Users\user\Desktop\C5G7_CorrelatedSampling\results\critical_rod_newton_cs_local_20260908_154933\final_direct_d83p63731939.log

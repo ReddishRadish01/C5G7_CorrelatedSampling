@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+#SBATCH --job-name=c5g7-critical
+#SBATCH --gres=gpu:1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=16G
+#SBATCH --time=24:00:00
+#SBATCH --output=results/slurm-%x-%j.out
+#SBATCH --error=results/slurm-%x-%j.err
+#SBATCH --export=ALL
+
+set -euo pipefail
+
+# Arguments after the script are accepted as environment assignments:
+# sbatch this_file.sbatch REPLICATES_PER_DEPTH=1 PARTICLES=50000000 LOWER_CM=82 UPPER_CM=84
+# STOP_ON_CONFIDENCE_INTERVAL defaults to 0 so statistical overlap alone does
+# not terminate the search before the requested depth/k tolerance is reached.
+for setting in "$@"; do
+  if [[ "$setting" =~ ^[A-Z_][A-Z0-9_]*=.*$ ]]; then
+    export "$setting"
+  else
+    echo "Invalid setting '$setting'; expected NAME=value." >&2
+    exit 2
+  fi
+done
+
+PROJECT_DIR="${PROJECT_DIR:-${SLURM_SUBMIT_DIR:-$PWD}}"
+cd "$PROJECT_DIR"
+
+if [[ ! -f Makefile || ! -f scripts/run_critical_rod_binary_search.sh ]]; then
+  echo "C5G7 project not found at PROJECT_DIR=$PROJECT_DIR" >&2
+  echo "Submit from the repository root or pass PROJECT_DIR=/path/to/C5G7_3-DExtension." >&2
+  exit 2
+fi
+
+if [[ -n "${CUDA_MODULE:-}" ]]; then
+  if ! type module >/dev/null 2>&1 && [[ -f /etc/profile.d/modules.sh ]]; then
+    # shellcheck disable=SC1091
+    source /etc/profile.d/modules.sh
+  fi
+  if ! type module >/dev/null 2>&1; then
+    echo "CUDA_MODULE=$CUDA_MODULE was requested, but the module command is unavailable." >&2
+    exit 1
+  fi
+  module load "$CUDA_MODULE"
+fi
+
+export CUDA_ARCH="${CUDA_ARCH:-native}"
+export RUN_TAG="${RUN_TAG:-slurm_${SLURM_JOB_ID:-manual}_$(date +%Y%m%d_%H%M%S)}"
+export LOG_DIR="${LOG_DIR:-results/critical_rod_binary_search_${RUN_TAG}}"
+
+echo "SLURM job: ${SLURM_JOB_ID:-not-set}"
+echo "Node list: ${SLURM_JOB_NODELIST:-not-set}"
+echo "CUDA_VISIBLE_DEVICES: ${CUDA_VISIBLE_DEVICES:-not-set}"
+echo "Project: $PROJECT_DIR"
+echo "CUDA_ARCH: $CUDA_ARCH"
+
+if command -v nvidia-smi >/dev/null 2>&1; then
+  nvidia-smi -L
+fi
+
+bash scripts/run_critical_rod_binary_search.sh

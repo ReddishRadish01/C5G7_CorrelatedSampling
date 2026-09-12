@@ -1,0 +1,17 @@
+CenterlineAxialOffsetSummary
+InputFile C:\Users\user\Desktop\C5G7_3-DExtension\results\pinwise_Tally_reference2003_20260727_203541.txt
+TallyType PinwiseFissionRateCollisionEstimator
+FuelSelection c5g7_17x17_geometry_mask
+CenterXY(cm) 32.130000000000003 32.130000000000003
+SelectionRadius(cm) 2
+FuelAssemblyCount 8
+AxialBinCount 306
+Normalization axial_height_weighted_mean_equals_1
+AxialOffsetDefinition (top-bottom)/(top+bottom)
+MidplaneZ(cm) 0
+BottomPower 12278.023561973323
+TopPower 12017.21516672162
+AxialOffset -0.010734959148339778
+AxialOffsetPercent -1.0734959148339778
+MinimumRelativePower 0.12986250768795224 ZCenter(cm) -189.63
+MaximumRelativePower 1.5611151909368792 ZCenter(cm) -3.1500000000000012

@@ -1,0 +1,21 @@
+1 0.411171
+2 1.010551
+3 1.082300
+4 1.064246
+5 1.098500
+
+
+Running Critical Search (Binary) case. Requested rod depth: 0.000000 cm, actual modeled rod depth: 0.000000 cm
+
+
+Active cycles: 3
+Requested rod depth: 0.000000 cm
+Actual modeled rod depth: 0.000000 cm
+k_mean: 1.081682
+k_stddev(cycle): 0.017135
+k_stderr(mean): 0.009893
+Reference K: 1.143900
+Difference with the reference K: -0.062218, Per cent error: -5.439083
+Reactivity(pcm): 7551.415583, pcm difference: -5028.355376
+stddev in pcm: 1464.508008, stderr of mean in pcm: 845.534093
+Total Time: 2.061271seconds. Average: 0.412254 seconds per cycle.
