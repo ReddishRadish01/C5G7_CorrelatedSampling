@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="760" viewBox="0 0 1180 760">
+<rect width="100%" height="100%" fill="white"/>
+<style>text{font-family:Segoe UI,Arial,sans-serif;fill:#1f2937}.title{font-size:24px;font-weight:700}.label{font-size:15px}.tick{font-size:12px;fill:#4b5563}.grid{stroke:#d1d5db;stroke-width:1}.axis{stroke:#111827;stroke-width:1.5}</style>
+<text x="105" y="38" class="title">CS slope and next-state prediction validation</text>
+<line x1="105.00" y1="80.0" x2="105.00" y2="680.0" class="grid"/>
+<text x="105.00" y="705.0" text-anchor="middle" class="tick">0.000</text>
+<line x1="311.00" y1="80.0" x2="311.00" y2="680.0" class="grid"/>
+<text x="311.00" y="705.0" text-anchor="middle" class="tick">25.679</text>
+<line x1="517.00" y1="80.0" x2="517.00" y2="680.0" class="grid"/>
+<text x="517.00" y="705.0" text-anchor="middle" class="tick">51.358</text>
+<line x1="723.00" y1="80.0" x2="723.00" y2="680.0" class="grid"/>
+<text x="723.00" y="705.0" text-anchor="middle" class="tick">77.037</text>
+<line x1="929.00" y1="80.0" x2="929.00" y2="680.0" class="grid"/>
+<text x="929.00" y="705.0" text-anchor="middle" class="tick">102.716</text>
+<line x1="1135.00" y1="80.0" x2="1135.00" y2="680.0" class="grid"/>
+<text x="1135.00" y="705.0" text-anchor="middle" class="tick">128.395</text>
+<line x1="105.0" y1="405.00" x2="1135.0" y2="405.00" class="grid"/>
+<text x="95.0" y="409.00" text-anchor="end" class="tick">-5.509e-03</text>
+<line x1="105.0" y1="340.00" x2="1135.0" y2="340.00" class="grid"/>
+<text x="95.0" y="344.00" text-anchor="end" class="tick">-4.141e-03</text>
+<line x1="105.0" y1="275.00" x2="1135.0" y2="275.00" class="grid"/>
+<text x="95.0" y="279.00" text-anchor="end" class="tick">-2.772e-03</text>
+<line x1="105.0" y1="210.00" x2="1135.0" y2="210.00" class="grid"/>
+<text x="95.0" y="214.00" text-anchor="end" class="tick">-1.404e-03</text>
+<line x1="105.0" y1="145.00" x2="1135.0" y2="145.00" class="grid"/>
+<text x="95.0" y="149.00" text-anchor="end" class="tick">-3.602e-05</text>
+<line x1="105.0" y1="80.00" x2="1135.0" y2="80.00" class="grid"/>
+<text x="95.0" y="84.00" text-anchor="end" class="tick">1.332e-03</text>
+<line x1="105.0" y1="653.33" x2="1135.0" y2="653.33" stroke="#9ca3af" stroke-dasharray="6,5"/>
+<text x="95.0" y="657.33" text-anchor="end" class="tick">-2</text>
+<line x1="105.0" y1="600.00" x2="1135.0" y2="600.00" stroke="#9ca3af" stroke-dasharray=""/>
+<text x="95.0" y="604.00" text-anchor="end" class="tick">0</text>
+<line x1="105.0" y1="546.67" x2="1135.0" y2="546.67" stroke="#9ca3af" stroke-dasharray="6,5"/>
+<text x="95.0" y="550.67" text-anchor="end" class="tick">2</text>
+<line x1="105.0" y1="80.0" x2="105.0" y2="405.0" class="axis"/>
+<line x1="105.0" y1="405.0" x2="1135.0" y2="405.0" class="axis"/>
+<line x1="105.0" y1="520.0" x2="105.0" y2="680.0" class="axis"/>
+<line x1="105.0" y1="680.0" x2="1135.0" y2="680.0" class="axis"/>
+<text x="590.0" y="735" text-anchor="middle" class="label">Reference rod insertion depth (cm)</text>
+<text x="22" y="245" transform="rotate(-90 22 245)" text-anchor="middle" class="label">dk/dd (cm^-1)</text>
+<text x="22" y="600" transform="rotate(-90 22 600)" text-anchor="middle" class="label">CS target-k agreement z</text>
+<text x="755" y="62" class="label" fill="#1769aa">● Direct MC finite difference (±1σ)</text>
+<text x="755" y="84" class="label" fill="#d97706">■ CS paired estimate (±1σ)</text>
+<line x1="100.00" y1="130.70" x2="100.00" y2="107.08" stroke="#1769aa"/>
+<circle cx="100.00" cy="118.89" r="5" fill="#1769aa"/>
+<line x1="110.00" y1="143.29" x2="110.00" y2="143.28" stroke="#d97706"/>
+<rect x="105.50" y="138.79" width="9" height="9" fill="#d97706"/>
+<circle cx="105.00" cy="636.67" r="5.5" fill="#15803d"/>
+<line x1="164.18" y1="149.68" x2="164.18" y2="130.97" stroke="#1769aa"/>
+<circle cx="164.18" cy="140.32" r="5" fill="#1769aa"/>
+<line x1="174.18" y1="143.30" x2="174.18" y2="143.28" stroke="#d97706"/>
+<rect x="169.68" y="138.79" width="9" height="9" fill="#d97706"/>
+<circle cx="169.18" cy="612.28" r="5.5" fill="#15803d"/>
+<line x1="228.35" y1="154.46" x2="228.35" y2="133.79" stroke="#1769aa"/>
+<circle cx="228.35" cy="144.13" r="5" fill="#1769aa"/>
+<line x1="238.35" y1="145.01" x2="238.35" y2="144.81" stroke="#d97706"/>
+<rect x="233.85" y="140.41" width="9" height="9" fill="#d97706"/>
+<circle cx="233.35" cy="585.60" r="5.5" fill="#15803d"/>
+<line x1="292.53" y1="172.39" x2="292.53" y2="152.50" stroke="#1769aa"/>
+<circle cx="292.53" cy="162.44" r="5" fill="#1769aa"/>
+<line x1="302.53" y1="161.31" x2="302.53" y2="160.23" stroke="#d97706"/>
+<rect x="298.03" y="156.27" width="9" height="9" fill="#d97706"/>
+<circle cx="297.53" cy="561.66" r="5.5" fill="#15803d"/>
+<line x1="356.71" y1="175.06" x2="356.71" y2="158.88" stroke="#1769aa"/>
+<circle cx="356.71" cy="166.97" r="5" fill="#1769aa"/>
+<line x1="366.71" y1="181.80" x2="366.71" y2="180.40" stroke="#d97706"/>
+<rect x="362.21" y="176.60" width="9" height="9" fill="#d97706"/>
+<circle cx="361.71" cy="577.39" r="5.5" fill="#15803d"/>
+<line x1="420.88" y1="221.59" x2="420.88" y2="201.81" stroke="#1769aa"/>
+<circle cx="420.88" cy="211.70" r="5" fill="#1769aa"/>
+<line x1="430.88" y1="200.00" x2="430.88" y2="198.58" stroke="#d97706"/>
+<rect x="426.38" y="194.79" width="9" height="9" fill="#d97706"/>
+<circle cx="425.88" cy="575.79" r="5.5" fill="#15803d"/>
+<line x1="485.06" y1="232.26" x2="485.06" y2="208.39" stroke="#1769aa"/>
+<circle cx="485.06" cy="220.33" r="5" fill="#1769aa"/>
+<line x1="495.06" y1="222.30" x2="495.06" y2="220.67" stroke="#d97706"/>
+<rect x="490.56" y="216.99" width="9" height="9" fill="#d97706"/>
+<circle cx="490.06" cy="575.76" r="5.5" fill="#15803d"/>
+<line x1="549.24" y1="252.30" x2="549.24" y2="231.76" stroke="#1769aa"/>
+<circle cx="549.24" cy="242.03" r="5" fill="#1769aa"/>
+<line x1="559.24" y1="249.02" x2="559.24" y2="247.23" stroke="#d97706"/>
+<rect x="554.74" y="243.63" width="9" height="9" fill="#d97706"/>
+<circle cx="554.24" cy="612.09" r="5.5" fill="#15803d"/>
+<line x1="870.12" y1="377.92" x2="870.12" y2="362.06" stroke="#1769aa"/>
+<circle cx="870.12" cy="369.99" r="5" fill="#1769aa"/>
+<line x1="880.12" y1="349.81" x2="880.12" y2="346.65" stroke="#d97706"/>
+<rect x="875.62" y="343.73" width="9" height="9" fill="#d97706"/>
+<circle cx="875.12" cy="570.13" r="5.5" fill="#15803d"/>
+<line x1="934.30" y1="188.61" x2="934.30" y2="171.62" stroke="#1769aa"/>
+<circle cx="934.30" cy="180.12" r="5" fill="#1769aa"/>
+<line x1="944.30" y1="180.83" x2="944.30" y2="179.66" stroke="#d97706"/>
+<rect x="939.80" y="175.75" width="9" height="9" fill="#d97706"/>
+<circle cx="939.30" cy="540.32" r="5.5" fill="#b91c1c"/>
+<line x1="998.48" y1="151.60" x2="998.48" y2="132.24" stroke="#1769aa"/>
+<circle cx="998.48" cy="141.92" r="5" fill="#1769aa"/>
+<line x1="1008.48" y1="143.29" x2="1008.48" y2="143.29" stroke="#d97706"/>
+<rect x="1003.98" y="138.79" width="9" height="9" fill="#d97706"/>
+<circle cx="1003.48" cy="584.77" r="5.5" fill="#15803d"/>
+<line x1="1062.65" y1="149.47" x2="1062.65" y2="132.47" stroke="#1769aa"/>
+<circle cx="1062.65" cy="140.97" r="5" fill="#1769aa"/>
+<line x1="1072.65" y1="143.29" x2="1072.65" y2="143.29" stroke="#d97706"/>
+<rect x="1068.15" y="138.79" width="9" height="9" fill="#d97706"/>
+<circle cx="1067.65" cy="659.28" r="5.5" fill="#b91c1c"/>
+<line x1="1130.00" y1="156.44" x2="1130.00" y2="139.72" stroke="#1769aa"/>
+<circle cx="1130.00" cy="148.08" r="5" fill="#1769aa"/>
+<line x1="1140.00" y1="143.29" x2="1140.00" y2="143.29" stroke="#d97706"/>
+<rect x="1135.50" y="138.79" width="9" height="9" fill="#d97706"/>
+<circle cx="1135.00" cy="592.05" r="5.5" fill="#15803d"/>
+<text x="105" y="488" class="label">Lower panel: [CS predicted k(d+h) - direct MC k(d+h)] / combined standard error; dashed lines are ±2σ.</text>
+</svg>

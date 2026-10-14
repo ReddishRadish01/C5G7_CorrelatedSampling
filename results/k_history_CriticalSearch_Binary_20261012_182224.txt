@@ -1,0 +1,41 @@
+1 0.392190
+2 0.877814
+3 0.907241
+4 0.913565
+5 0.938955
+6 0.957112
+7 0.954735
+8 0.960070
+9 0.970280
+10 0.976381
+11 0.982531
+12 0.979433
+13 0.979905
+14 0.986303
+15 0.985182
+16 0.986878
+17 0.988877
+18 0.989451
+19 0.989838
+20 0.993761
+21 0.996068
+22 0.998224
+
+
+Running Critical Search (Binary) case. Requested rod depth: 83.763895 cm, actual modeled rod depth: 83.763895 cm
+
+
+Active cycles: 12
+Requested rod depth: 83.763895 cm
+Actual modeled rod depth: 83.763895 cm
+k_mean: 0.988038
+k_stddev(cycle): 0.005954
+k_stderr(mean): 0.003217
+k_stderr(iid-cycle): 0.001719
+k_stderr(batch-means): 0.003217
+k_batch_means: 4 batches x 3 cycles
+Reference K: 1.143900
+Difference with the reference K: -0.155862, Per cent error: -13.625517
+Reactivity(pcm): -1210.712227, pcm difference: -13790.483186
+stddev in pcm: 609.916133, stderr of mean in pcm: 329.498322
+Total Time: 1.403513seconds. Average: 0.063796 seconds per cycle.

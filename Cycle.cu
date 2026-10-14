@@ -183,7 +183,8 @@ G void weightParallelReductionSum(NeutronBank* Bank, double*) {
 
 G void cycle_Neutron(NeutronBank* Bank, C5G7Geometry* Core, TallyC5G7Geometry* CoreTally, XSLibrary* XSLib, unsigned long long* seedNo, double* k_mult, bool passFlag, int iterTimes, double* fissionWeight,
     CorrelatedSamplingConfig csConfig, double* csFissionScores, double* csSourceSums,
-    double* csSourceCount, unsigned long long* csSupportMismatch) {
+    double* csSourceCount, unsigned long long* csSupportMismatch,
+    CsWeightDiagnostics* csWeightDiagnostics) {
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (idx >= Bank->allocatableNeutronNum) {
@@ -295,7 +296,9 @@ G void cycle_Neutron(NeutronBank* Bank, C5G7Geometry* Core, TallyC5G7Geometry* C
 					csFissionScores,
 					csSourceSums,
 					csSourceCount,
-					csSupportMismatch
+					csSupportMismatch,
+					csWeightDiagnostics,
+					(idx % CS_WEIGHT_HIST_SAMPLE_STRIDE) == 0
                 );
 
 #ifdef TALLYINCYCLE
@@ -453,7 +456,8 @@ G void addedNeutronPassResetter(NeutronBank* Neutrons) {
 
 G void cycle_addedNeutron(NeutronBank* Bank, C5G7Geometry* Core, TallyC5G7Geometry* CoreTally, XSLibrary* XSLib, unsigned long long* seedNo, double* k_mult, bool passFlag, int iterTimes, double* fissionWeight,
     CorrelatedSamplingConfig csConfig, double* csFissionScores, double* csSourceSums,
-    double* csSourceCount, unsigned long long* csSupportMismatch) {
+    double* csSourceCount, unsigned long long* csSupportMismatch,
+    CsWeightDiagnostics* csWeightDiagnostics) {
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (idx >= Bank->allocatableNeutronNum) {
@@ -565,7 +569,9 @@ G void cycle_addedNeutron(NeutronBank* Bank, C5G7Geometry* Core, TallyC5G7Geomet
 					csFissionScores,
 					csSourceSums,
 					csSourceCount,
-					csSupportMismatch
+					csSupportMismatch,
+					csWeightDiagnostics,
+					(idx % CS_WEIGHT_HIST_SAMPLE_STRIDE) == 0
                 );
 
 #ifdef TALLYINCYCLE

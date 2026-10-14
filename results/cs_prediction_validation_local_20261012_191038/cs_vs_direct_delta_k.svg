@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="760" viewBox="0 0 1100 760">
+<rect width="100%" height="100%" fill="white"/>
+<style>text{font-family:Segoe UI,Arial,sans-serif;fill:#1f2937}.title{font-size:24px;font-weight:700}.label{font-size:16px}.tick{font-size:13px;fill:#4b5563}.grid{stroke:#d1d5db;stroke-width:1}.axis{stroke:#111827;stroke-width:1.5}.direct{stroke:#1769aa;fill:#1769aa}.cs{stroke:#d97706;fill:#d97706}</style>
+<text x="105" y="36" class="title">CS prediction versus independent direct Monte Carlo</text>
+<line x1="105" y1="75" x2="105" y2="690" class="grid"/>
+<text x="105" y="715" text-anchor="middle" class="tick">0</text>
+<line x1="295" y1="75" x2="295" y2="690" class="grid"/>
+<text x="295" y="715" text-anchor="middle" class="tick">0.1</text>
+<line x1="485" y1="75" x2="485" y2="690" class="grid"/>
+<text x="485" y="715" text-anchor="middle" class="tick">0.2</text>
+<line x1="675" y1="75" x2="675" y2="690" class="grid"/>
+<text x="675" y="715" text-anchor="middle" class="tick">0.3</text>
+<line x1="865" y1="75" x2="865" y2="690" class="grid"/>
+<text x="865" y="715" text-anchor="middle" class="tick">0.4</text>
+<line x1="1055" y1="75" x2="1055" y2="690" class="grid"/>
+<text x="1055" y="715" text-anchor="middle" class="tick">0.5</text>
+<line x1="105" y1="430" x2="1055" y2="430" class="grid"/>
+<text x="93" y="435" text-anchor="end" class="tick">-0.003583</text>
+<line x1="105" y1="359" x2="1055" y2="359" class="grid"/>
+<text x="93" y="364" text-anchor="end" class="tick">-0.002813</text>
+<line x1="105" y1="288" x2="1055" y2="288" class="grid"/>
+<text x="93" y="293" text-anchor="end" class="tick">-0.002044</text>
+<line x1="105" y1="217" x2="1055" y2="217" class="grid"/>
+<text x="93" y="222" text-anchor="end" class="tick">-0.001274</text>
+<line x1="105" y1="146" x2="1055" y2="146" class="grid"/>
+<text x="93" y="151" text-anchor="end" class="tick">-0.000504</text>
+<line x1="105" y1="74.9999999999999" x2="1055" y2="74.9999999999999" class="grid"/>
+<text x="93" y="79.9999999999999" text-anchor="end" class="tick">0.000265</text>
+<line x1="105" y1="664.166666666667" x2="1055" y2="664.166666666667" stroke="#9ca3af" stroke-dasharray="6,5"/>
+<text x="93" y="669.166666666667" text-anchor="end" class="tick">-2</text>
+<line x1="105" y1="638.333333333333" x2="1055" y2="638.333333333333" stroke="#9ca3af" stroke-dasharray="3,4"/>
+<text x="93" y="643.333333333333" text-anchor="end" class="tick">-1</text>
+<line x1="105" y1="612.5" x2="1055" y2="612.5" stroke="#9ca3af" stroke-dasharray=""/>
+<text x="93" y="617.5" text-anchor="end" class="tick">0</text>
+<line x1="105" y1="586.666666666667" x2="1055" y2="586.666666666667" stroke="#9ca3af" stroke-dasharray="3,4"/>
+<text x="93" y="591.666666666667" text-anchor="end" class="tick">1</text>
+<line x1="105" y1="560.833333333333" x2="1055" y2="560.833333333333" stroke="#9ca3af" stroke-dasharray="6,5"/>
+<text x="93" y="565.833333333333" text-anchor="end" class="tick">2</text>
+<line x1="105" y1="75" x2="105" y2="430" class="axis"/>
+<line x1="105" y1="430" x2="1055" y2="430" class="axis"/>
+<line x1="105" y1="535" x2="105" y2="690" class="axis"/>
+<line x1="105" y1="690" x2="1055" y2="690" class="axis"/>
+<text x="550" y="742" text-anchor="middle" class="label">Additional rod insertion, delta z (cm)</text>
+<text x="24" y="255" transform="rotate(-90 24 255)" text-anchor="middle" class="label">Delta k</text>
+<text x="24" y="615" transform="rotate(-90 24 615)" text-anchor="middle" class="label">Agreement z-score</text>
+<text x="735" y="62" class="label" fill="#1769aa">● Direct MC difference (±1σ)</text>
+<text x="735" y="86" class="label" fill="#d97706">■ CS estimate (±1σ)</text>
+<line x1="159.375" y1="136.591607931861" x2="159.375" y2="104.531743167527" class="direct"/>
+<line x1="155.375" y1="136.591607931861" x2="163.375" y2="136.591607931861" class="direct"/>
+<line x1="155.375" y1="104.531743167527" x2="163.375" y2="104.531743167527" class="direct"/>
+<circle cx="159.375" cy="120.561675549694" r="5" class="direct"/>
+<line x1="169.375" y1="118.630473256275" x2="169.375" y2="115.953839940624" class="cs"/>
+<line x1="165.375" y1="118.630473256275" x2="173.375" y2="118.630473256275" class="cs"/>
+<line x1="165.375" y1="115.953839940624" x2="173.375" y2="115.953839940624" class="cs"/>
+<rect x="164.875" y="112.79215659845" width="9" height="9" class="cs"/>
+<circle cx="164.375" cy="607.249214520558" r="5.5" fill="#15803d"/>
+<line x1="218.75" y1="137.715627954432" x2="218.75" y2="107.651181257578" class="direct"/>
+<line x1="214.75" y1="137.715627954432" x2="222.75" y2="137.715627954432" class="direct"/>
+<line x1="214.75" y1="107.651181257578" x2="222.75" y2="107.651181257578" class="direct"/>
+<circle cx="218.75" cy="122.683404606005" r="5" class="direct"/>
+<line x1="228.75" y1="137.449929671217" x2="228.75" y2="134.612612937846" class="cs"/>
+<line x1="224.75" y1="137.449929671217" x2="232.75" y2="137.449929671217" class="cs"/>
+<line x1="224.75" y1="134.612612937846" x2="232.75" y2="134.612612937846" class="cs"/>
+<rect x="224.25" y="131.531271304531" width="9" height="9" class="cs"/>
+<circle cx="223.75" cy="635.337240173843" r="5.5" fill="#15803d"/>
+<line x1="337.5" y1="192.93940389997" x2="337.5" y2="165.17424238264" class="direct"/>
+<line x1="333.5" y1="192.93940389997" x2="341.5" y2="192.93940389997" class="direct"/>
+<line x1="333.5" y1="165.17424238264" x2="341.5" y2="165.17424238264" class="direct"/>
+<circle cx="337.5" cy="179.056823141305" r="5" class="direct"/>
+<line x1="347.5" y1="174.424569308049" x2="347.5" y2="170.997421959554" class="cs"/>
+<line x1="343.5" y1="174.424569308049" x2="351.5" y2="174.424569308049" class="cs"/>
+<line x1="343.5" y1="170.997421959554" x2="351.5" y2="170.997421959554" class="cs"/>
+<rect x="343" y="168.210995633801" width="9" height="9" class="cs"/>
+<circle cx="342.5" cy="600.780339227476" r="5.5" fill="#15803d"/>
+<line x1="575" y1="244.481966685013" x2="575" y2="210.714621287265" class="direct"/>
+<line x1="571" y1="244.481966685013" x2="579" y2="244.481966685013" class="direct"/>
+<line x1="571" y1="210.714621287265" x2="579" y2="210.714621287265" class="direct"/>
+<circle cx="575" cy="227.598293986139" r="5" class="direct"/>
+<line x1="585" y1="245.703901580615" x2="585" y2="233.699239879127" class="cs"/>
+<line x1="581" y1="245.703901580615" x2="589" y2="245.703901580615" class="cs"/>
+<line x1="581" y1="233.699239879127" x2="589" y2="233.699239879127" class="cs"/>
+<rect x="580.5" y="235.201570729871" width="9" height="9" class="cs"/>
+<circle cx="580" cy="629.949077431805" r="5.5" fill="#15803d"/>
+<line x1="1050" y1="405.51724137931" x2="1050" y2="375.687628549692" class="direct"/>
+<line x1="1046" y1="405.51724137931" x2="1054" y2="405.51724137931" class="direct"/>
+<line x1="1046" y1="375.687628549692" x2="1054" y2="375.687628549692" class="direct"/>
+<circle cx="1050" cy="390.602434964501" r="5" class="direct"/>
+<line x1="1060" y1="390.575215067209" x2="1060" y2="381.676585906976" class="cs"/>
+<line x1="1056" y1="390.575215067209" x2="1064" y2="390.575215067209" class="cs"/>
+<line x1="1056" y1="381.676585906976" x2="1064" y2="381.676585906976" class="cs"/>
+<rect x="1055.5" y="381.625900487092" width="9" height="9" class="cs"/>
+<circle cx="1055" cy="605.069938384227" r="5.5" fill="#15803d"/>
+<text x="105" y="505" class="label">z = (CS delta-k − direct delta-k) / combined standard error; |z| ≤ 2 indicates statistical agreement.</text>
+</svg>

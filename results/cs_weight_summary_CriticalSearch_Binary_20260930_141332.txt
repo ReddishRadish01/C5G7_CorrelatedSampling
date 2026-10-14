@@ -1,0 +1,54 @@
+CS weight diagnostic (active cycles only)
+Reference rod depth (cm): 83.6388953145
+Perturbed rod depth (cm): 83.7638953145
+Source propagation level: 10
+Fission-score observations (exact maxima/counters): 16636781080
+Histogram observations (1/64 particle indices): 259966102
+Invalid observations: 0
+
+Definitions:
+  w                  = reference physical particle weight
+  wstar_nps          = w * exp(csLogLikelihood)
+  wstar_source       = wstar_nps * R_L
+  wstar_fission      = wstar_nps * (nuSigmaF*/nuSigmaF)
+  wstar_score        = wstar_fission * R_L
+
+w:
+  p50/p90/p95/p99/p99.9/p99.99 = 0.841395141645 / 0.944060876286 / 0.944060876286 / 1.05925372518 / 1.05925372518 / 1.05925372518
+  exact max = 1.00114506616
+wstar_nps:
+  p50/p90/p95/p99/p99.9/p99.99 = 0.841395141645 / 0.944060876286 / 0.944060876286 / 1.05925372518 / 1.05925372518 / 2.11348903984
+  exact max = 221.980784345
+  exact max(value/w) = 311.996535037
+  fraction(value>w) = 0.00281563962252
+  max(value-w) / max(w-value) = 221.074787326 / 1.00055872791
+wstar_source:
+  p50/p90/p95/p99/p99.9/p99.99 = 0.841395141645 / 0.944060876286 / 1.05925372518 / 1.05925372518 / 2.98538261892 / 5.95662143529
+  exact max = 314.539551829
+  exact max(value/w) = 314.374292749
+  fraction(value>w) = 0.81118925693
+  max(value-w) / max(w-value) = 313.539026153 / 1.00097425304
+wstar_fission:
+  p50/p90/p95/p99/p99.9/p99.99 = 0.841395141645 / 0.944060876286 / 0.944060876286 / 1.05925372518 / 1.05925372518 / 2.11348903984
+  exact max = 221.980784345
+  exact max(value/w) = 311.996535037
+  fraction(value>w) = 0.00281563962252
+  max(value-w) / max(w-value) = 221.074787326 / 1.00055872791
+wstar_score:
+  p50/p90/p95/p99/p99.9/p99.99 = 0.841395141645 / 0.944060876286 / 1.05925372518 / 1.05925372518 / 2.98538261892 / 5.95662143529
+  exact max = 314.539551829
+  exact max(value/w) = 314.374292749
+  fraction(value>w) = 0.81118925687
+  max(value-w) / max(w-value) = 313.539026153 / 1.00097425304
+
+Approximate sampled exceedance fractions for source-aware particle weight wstar_source:
+  > 0.5: 0.813077998915
+  > 1: 0.0923466552574
+  > 2: 0.00214437573096
+  > 5: 0.000175949862879
+  > 10: 3.83857738499e-05
+
+Candidate upper bounds from sampled wstar_source distribution:
+  p99: 1.05925372518
+  p99.9: 2.98538261892
+  p99.99: 5.95662143529

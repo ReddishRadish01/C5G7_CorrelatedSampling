@@ -1,0 +1,12 @@
+config=C:\Users\user\Desktop\C5G7_CorrelatedSampling\scripts\cs_prediction_validation_windows_config.psd1
+executable=C:\Users\user\Desktop\C5G7_CorrelatedSampling\build\windows_nvcc\c5g7_cs_validation.exe
+reference_depth_cm=83.638895314500004
+probe_steps_cm=0.03125,0.0625,0.125,0.25,0.5
+particles=500000
+inactive=100
+active=150
+cs_generations=10
+base_seed=92239000101
+confidence_sigma=2
+source_tail_abs_pcm=1
+source_tail_relative_fraction=0.02

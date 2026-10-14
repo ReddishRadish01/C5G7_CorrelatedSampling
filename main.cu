@@ -25,6 +25,7 @@
 #include <array>
 #include <cmath>
 #include <vector>
+#include <limits>
 
 //#define TALLY
 
@@ -67,6 +68,7 @@ struct RunConfig {
 	bool csEnabled = false;
 	double csPerturbedRodDepth = 0.0;
 	int csPropagationGenerations = CS_MAX_PROPAGATION_GENERATIONS;
+	bool csTrackWeights = false;
 };
 
 struct RunningStatistics {
@@ -252,6 +254,9 @@ static RunConfig parseRunConfig(int argc, char** argv) {
 		else if (arg.rfind("--cs-generations=", 0) == 0) {
 			config.csPropagationGenerations = std::atoi(arg.substr(17).c_str());
 		}
+		else if (arg == "--cs-track-weights") {
+			config.csTrackWeights = true;
+		}
 	}
 	config.initialNum = std::max(1, config.initialNum);
 	config.inactiveCycle = std::max(0, config.inactiveCycle);
@@ -262,6 +267,110 @@ static RunConfig parseRunConfig(int argc, char** argv) {
 		config.rodInsertionDepth = 0.0;
 	}
 	return config;
+}
+
+static CsWeightDiagnostics emptyCsWeightDiagnostics() {
+	return CsWeightDiagnostics{};
+}
+
+static void mergeCsWeightDiagnostics(
+	CsWeightDiagnostics& destination,
+	const CsWeightDiagnostics& source) {
+	destination.observations += source.observations;
+	destination.invalidObservations += source.invalidObservations;
+	destination.histogramObservations += source.histogramObservations;
+	destination.npsAboveReference += source.npsAboveReference;
+	destination.sourceAboveReference += source.sourceAboveReference;
+	destination.fissionAboveReference += source.fissionAboveReference;
+	destination.scoreAboveReference += source.scoreAboveReference;
+
+	destination.maxReferenceWeight = std::max(destination.maxReferenceWeight, source.maxReferenceWeight);
+	destination.maxNpsWeight = std::max(destination.maxNpsWeight, source.maxNpsWeight);
+	destination.maxSourceWeight = std::max(destination.maxSourceWeight, source.maxSourceWeight);
+	destination.maxFissionWeight = std::max(destination.maxFissionWeight, source.maxFissionWeight);
+	destination.maxScoreWeight = std::max(destination.maxScoreWeight, source.maxScoreWeight);
+	destination.maxNpsRatio = std::max(destination.maxNpsRatio, source.maxNpsRatio);
+	destination.maxSourceRatio = std::max(destination.maxSourceRatio, source.maxSourceRatio);
+	destination.maxFissionRatio = std::max(destination.maxFissionRatio, source.maxFissionRatio);
+	destination.maxScoreRatio = std::max(destination.maxScoreRatio, source.maxScoreRatio);
+	destination.maxNpsIncrease = std::max(destination.maxNpsIncrease, source.maxNpsIncrease);
+	destination.maxSourceIncrease = std::max(destination.maxSourceIncrease, source.maxSourceIncrease);
+	destination.maxFissionIncrease = std::max(destination.maxFissionIncrease, source.maxFissionIncrease);
+	destination.maxScoreIncrease = std::max(destination.maxScoreIncrease, source.maxScoreIncrease);
+	destination.maxNpsDecrease = std::max(destination.maxNpsDecrease, source.maxNpsDecrease);
+	destination.maxSourceDecrease = std::max(destination.maxSourceDecrease, source.maxSourceDecrease);
+	destination.maxFissionDecrease = std::max(destination.maxFissionDecrease, source.maxFissionDecrease);
+	destination.maxScoreDecrease = std::max(destination.maxScoreDecrease, source.maxScoreDecrease);
+
+	for (int bin = 0; bin < CS_WEIGHT_HIST_BINS; ++bin) {
+		destination.referenceHistogram[bin] += source.referenceHistogram[bin];
+		destination.npsHistogram[bin] += source.npsHistogram[bin];
+		destination.sourceHistogram[bin] += source.sourceHistogram[bin];
+		destination.fissionHistogram[bin] += source.fissionHistogram[bin];
+		destination.scoreHistogram[bin] += source.scoreHistogram[bin];
+		destination.npsRatioHistogram[bin] += source.npsRatioHistogram[bin];
+		destination.sourceRatioHistogram[bin] += source.sourceRatioHistogram[bin];
+		destination.scoreRatioHistogram[bin] += source.scoreRatioHistogram[bin];
+	}
+}
+
+static double csHistogramPercentile(
+	const unsigned long long* histogram,
+	double probability) {
+	unsigned long long total = 0ULL;
+	for (int bin = 0; bin < CS_WEIGHT_HIST_BINS; ++bin) total += histogram[bin];
+	if (total == 0ULL) return std::numeric_limits<double>::quiet_NaN();
+	const unsigned long long target = static_cast<unsigned long long>(
+		std::ceil(probability * static_cast<double>(total)));
+	unsigned long long cumulative = 0ULL;
+	for (int bin = 0; bin < CS_WEIGHT_HIST_BINS; ++bin) {
+		cumulative += histogram[bin];
+		if (cumulative >= std::max(1ULL, target)) {
+			if (bin == 0) return std::pow(10.0, CS_WEIGHT_HIST_LOG10_MIN);
+			if (bin == CS_WEIGHT_HIST_BINS - 1) return std::numeric_limits<double>::infinity();
+			const double log10Midpoint = CS_WEIGHT_HIST_LOG10_MIN +
+				(static_cast<double>(bin) - 0.5) * CS_WEIGHT_HIST_LOG10_WIDTH;
+			return std::pow(10.0, log10Midpoint);
+		}
+	}
+	return std::numeric_limits<double>::quiet_NaN();
+}
+
+static double csHistogramPercentileBounded(
+	const unsigned long long* histogram,
+	double probability,
+	double exactMaximum) {
+	return std::min(csHistogramPercentile(histogram, probability), exactMaximum);
+}
+
+static double csFraction(unsigned long long numerator, unsigned long long denominator) {
+	return denominator > 0ULL
+		? static_cast<double>(numerator) / static_cast<double>(denominator)
+		: 0.0;
+}
+
+static unsigned long long csHistogramTotal(const unsigned long long* histogram) {
+	unsigned long long total = 0ULL;
+	for (int bin = 0; bin < CS_WEIGHT_HIST_BINS; ++bin) total += histogram[bin];
+	return total;
+}
+
+static double csHistogramFractionAbove(
+	const unsigned long long* histogram,
+	double threshold) {
+	const unsigned long long total = csHistogramTotal(histogram);
+	if (total == 0ULL || !(threshold > 0.0)) return 0.0;
+	const double thresholdLog10 = std::log10(threshold);
+	unsigned long long above = 0ULL;
+	for (int bin = 0; bin < CS_WEIGHT_HIST_BINS; ++bin) {
+		double midpointLog10 = 0.0;
+		if (bin == 0) midpointLog10 = CS_WEIGHT_HIST_LOG10_MIN;
+		else if (bin == CS_WEIGHT_HIST_BINS - 1) midpointLog10 = CS_WEIGHT_HIST_LOG10_MAX;
+		else midpointLog10 = CS_WEIGHT_HIST_LOG10_MIN +
+			(static_cast<double>(bin) - 0.5) * CS_WEIGHT_HIST_LOG10_WIDTH;
+		if (midpointLog10 > thresholdLog10) above += histogram[bin];
+	}
+	return csFraction(above, total);
 }
 
 static double actualTopRodDepthCm(const C5G7Geometry& core) {
@@ -642,6 +751,21 @@ int main(int argc, char** argv) {
 			<< std::setw(2) << std::setfill('0') << tm.tm_min
 			<< std::setw(2) << std::setfill('0') << tm.tm_sec << ".txt";
 	}
+	std::ostringstream csWeightCycleOss;
+	std::ostringstream csWeightHistogramOss;
+	std::ostringstream csWeightSummaryOss;
+	if (csConfig.enabled && runConfig.csTrackWeights) {
+		const std::string timestamp =
+			std::to_string(tm.tm_year + 1900) +
+			(tm.tm_mon + 1 < 10 ? "0" : "") + std::to_string(tm.tm_mon + 1) +
+			(tm.tm_mday < 10 ? "0" : "") + std::to_string(tm.tm_mday) + "_" +
+			(tm.tm_hour < 10 ? "0" : "") + std::to_string(tm.tm_hour) +
+			(tm.tm_min < 10 ? "0" : "") + std::to_string(tm.tm_min) +
+			(tm.tm_sec < 10 ? "0" : "") + std::to_string(tm.tm_sec);
+		csWeightCycleOss << "results/cs_weight_cycle_" << fileIdentifier << "_" << timestamp << ".csv";
+		csWeightHistogramOss << "results/cs_weight_histogram_" << fileIdentifier << "_" << timestamp << ".csv";
+		csWeightSummaryOss << "results/cs_weight_summary_" << fileIdentifier << "_" << timestamp << ".txt";
+	}
 
 	std::ostringstream oss2;
 	oss2 << "results/flux_Tally_"
@@ -686,6 +810,7 @@ int main(int argc, char** argv) {
 	std::ofstream klog(oss.str(), std::ios::out);
 	klog << std::fixed << std::setprecision(6);
 	std::ofstream csLog;
+	std::ofstream csWeightCycleLog;
 	if (csConfig.enabled) {
 		csLog.open(csOss.str(), std::ios::out);
 		csLog << std::setprecision(12);
@@ -698,6 +823,20 @@ int main(int argc, char** argv) {
 			csLog << " source_mean_L" << level;
 		}
 		csLog << "\n";
+		if (runConfig.csTrackWeights) {
+			csWeightCycleLog.open(csWeightCycleOss.str(), std::ios::out);
+			csWeightCycleLog << std::setprecision(12);
+			csWeightCycleLog
+				<< "cycle,phase,observations,histogram_observations,invalid_observations,"
+				<< "max_w,p99_w,p999_w,"
+				<< "max_wstar_nps,p99_wstar_nps,p999_wstar_nps,max_wstar_nps_over_w,"
+				<< "fraction_wstar_nps_gt_w,max_wstar_nps_minus_w,max_w_minus_wstar_nps,"
+				<< "max_wstar_source,p99_wstar_source,p999_wstar_source,max_wstar_source_over_w,"
+				<< "fraction_wstar_source_gt_w,max_wstar_source_minus_w,max_w_minus_wstar_source,"
+				<< "max_wstar_fission,p99_wstar_fission,p999_wstar_fission,max_wstar_fission_over_w,"
+				<< "max_wstar_score,p99_wstar_score,p999_wstar_score,max_wstar_score_over_w,"
+				<< "fraction_wstar_score_gt_w,max_wstar_score_minus_w,max_w_minus_wstar_score\n";
+		}
 	}
 
 	std::ofstream fluxTallyLog(oss2.str(), std::ios::out);
@@ -797,12 +936,23 @@ int main(int argc, char** argv) {
 	double* d_csSourceSums = nullptr;
 	double* d_csSourceCount = nullptr;
 	unsigned long long* d_csSupportMismatch = nullptr;
+	CsWeightDiagnostics h_csWeightCycle = emptyCsWeightDiagnostics();
+	CsWeightDiagnostics h_csWeightActive = emptyCsWeightDiagnostics();
+	CsWeightDiagnostics* d_csWeightDiagnostics = nullptr;
 	if (csConfig.enabled) {
 		cudaMalloc(&d_csFissionScores, sizeof(double) * h_csFissionScores.size());
 		cudaMalloc(&d_csSourceSums, sizeof(double) * h_csSourceSums.size());
 		cudaMalloc(&d_csSourceCount, sizeof(double));
 		cudaMalloc(&d_csSupportMismatch, sizeof(unsigned long long));
 		cudaMemset(d_csSupportMismatch, 0, sizeof(unsigned long long));
+		if (runConfig.csTrackWeights) {
+			cudaMalloc(&d_csWeightDiagnostics, sizeof(CsWeightDiagnostics));
+			cudaMemcpy(d_csWeightDiagnostics, &h_csWeightCycle,
+				sizeof(CsWeightDiagnostics), cudaMemcpyHostToDevice);
+			std::cout << "CS weight tracking enabled at every fission-scoring collision; "
+				<< "histograms sample 1/" << CS_WEIGHT_HIST_SAMPLE_STRIDE
+				<< " particle indices.\n";
+		}
 	}
 	double fissionCountBuffer = initialWeight * h_multK;
 	double weightBuffer = initialWeight;
@@ -853,11 +1003,17 @@ int main(int argc, char** argv) {
 			cudaMemset(d_csFissionScores, 0, sizeof(double) * h_csFissionScores.size());
 			cudaMemset(d_csSourceSums, 0, sizeof(double) * h_csSourceSums.size());
 			cudaMemset(d_csSourceCount, 0, sizeof(double));
+			if (d_csWeightDiagnostics != nullptr) {
+				h_csWeightCycle = emptyCsWeightDiagnostics();
+				cudaMemcpy(d_csWeightDiagnostics, &h_csWeightCycle,
+					sizeof(CsWeightDiagnostics), cudaMemcpyHostToDevice);
+			}
 		}
 		//cudaMemset(&(d_fissionCount), 0.0, sizeof(double));
 
 		cycle_addedNeutron << <blockPerDim, threadPerBlock >> > (d_Bank, d_Core, d_CoreTally, d_XSLib, d_SeedArr, d_multK, true, iterLimit, d_fissionCount,
-			csConfig, d_csFissionScores, d_csSourceSums, d_csSourceCount, d_csSupportMismatch);
+			csConfig, d_csFissionScores, d_csSourceSums, d_csSourceCount, d_csSupportMismatch,
+			d_csWeightDiagnostics);
 #ifdef _DEBUG
 		CUDA_KERNEL_CHECK();
 #endif
@@ -866,7 +1022,8 @@ int main(int argc, char** argv) {
 		CUDA_KERNEL_CHECK();
 #endif
 		cycle_Neutron << <blockPerDim, threadPerBlock >> > (d_Bank, d_Core, d_CoreTally, d_XSLib, d_SeedArr, d_multK, false, iterLimit, d_fissionCount,
-			csConfig, d_csFissionScores, d_csSourceSums, d_csSourceCount, d_csSupportMismatch);
+			csConfig, d_csFissionScores, d_csSourceSums, d_csSourceCount, d_csSupportMismatch,
+			d_csWeightDiagnostics);
 #ifdef _DEBUG
 		CUDA_KERNEL_CHECK();
 #endif
@@ -877,6 +1034,44 @@ int main(int argc, char** argv) {
 			cudaMemcpy(h_csSourceSums.data(), d_csSourceSums,
 				sizeof(double) * h_csSourceSums.size(), cudaMemcpyDeviceToHost);
 			cudaMemcpy(&h_csSourceCount, d_csSourceCount, sizeof(double), cudaMemcpyDeviceToHost);
+			if (d_csWeightDiagnostics != nullptr) {
+				cudaMemcpy(&h_csWeightCycle, d_csWeightDiagnostics,
+					sizeof(CsWeightDiagnostics), cudaMemcpyDeviceToHost);
+				if (cycle >= inactiveCycle) {
+					mergeCsWeightDiagnostics(h_csWeightActive, h_csWeightCycle);
+				}
+				csWeightCycleLog
+					<< (cycle + 1) << "," << (cycle >= inactiveCycle ? "active" : "inactive") << ","
+					<< h_csWeightCycle.observations << ","
+					<< h_csWeightCycle.histogramObservations << ","
+					<< h_csWeightCycle.invalidObservations << ","
+					<< h_csWeightCycle.maxReferenceWeight << ","
+					<< csHistogramPercentileBounded(h_csWeightCycle.referenceHistogram, 0.99, h_csWeightCycle.maxReferenceWeight) << ","
+					<< csHistogramPercentileBounded(h_csWeightCycle.referenceHistogram, 0.999, h_csWeightCycle.maxReferenceWeight) << ","
+					<< h_csWeightCycle.maxNpsWeight << ","
+					<< csHistogramPercentileBounded(h_csWeightCycle.npsHistogram, 0.99, h_csWeightCycle.maxNpsWeight) << ","
+					<< csHistogramPercentileBounded(h_csWeightCycle.npsHistogram, 0.999, h_csWeightCycle.maxNpsWeight) << ","
+					<< h_csWeightCycle.maxNpsRatio << ","
+					<< csFraction(h_csWeightCycle.npsAboveReference, h_csWeightCycle.observations) << ","
+					<< h_csWeightCycle.maxNpsIncrease << "," << h_csWeightCycle.maxNpsDecrease << ","
+					<< h_csWeightCycle.maxSourceWeight << ","
+					<< csHistogramPercentileBounded(h_csWeightCycle.sourceHistogram, 0.99, h_csWeightCycle.maxSourceWeight) << ","
+					<< csHistogramPercentileBounded(h_csWeightCycle.sourceHistogram, 0.999, h_csWeightCycle.maxSourceWeight) << ","
+					<< h_csWeightCycle.maxSourceRatio << ","
+					<< csFraction(h_csWeightCycle.sourceAboveReference, h_csWeightCycle.observations) << ","
+					<< h_csWeightCycle.maxSourceIncrease << "," << h_csWeightCycle.maxSourceDecrease << ","
+					<< h_csWeightCycle.maxFissionWeight << ","
+					<< csHistogramPercentileBounded(h_csWeightCycle.fissionHistogram, 0.99, h_csWeightCycle.maxFissionWeight) << ","
+					<< csHistogramPercentileBounded(h_csWeightCycle.fissionHistogram, 0.999, h_csWeightCycle.maxFissionWeight) << ","
+					<< h_csWeightCycle.maxFissionRatio << ","
+					<< h_csWeightCycle.maxScoreWeight << ","
+					<< csHistogramPercentileBounded(h_csWeightCycle.scoreHistogram, 0.99, h_csWeightCycle.maxScoreWeight) << ","
+					<< csHistogramPercentileBounded(h_csWeightCycle.scoreHistogram, 0.999, h_csWeightCycle.maxScoreWeight) << ","
+					<< h_csWeightCycle.maxScoreRatio << ","
+					<< csFraction(h_csWeightCycle.scoreAboveReference, h_csWeightCycle.observations) << ","
+					<< h_csWeightCycle.maxScoreIncrease << "," << h_csWeightCycle.maxScoreDecrease << "\n";
+				csWeightCycleLog.flush();
+			}
 			normalizeCorrelatedSource << <blockPerDim, threadPerBlock >> > (
 				d_Bank, csConfig, d_csSourceSums, d_csSourceCount);
 #ifdef _DEBUG
@@ -1058,13 +1253,104 @@ int main(int argc, char** argv) {
 		GPU_Manager::compact_bank_device(d_Bank);
 		cudaMemcpy(&h_Bank, d_Bank, sizeof(NeutronBank), cudaMemcpyDeviceToHost);
 		
-		std::cout << "End Of Cycle\n";
+		std::cout << "End Of Cycle\n" << std::flush;
 	}
 	auto t_end = std::chrono::steady_clock::now();
 	std::chrono::duration<double> elapsed = t_end - t_start;
 	if (csConfig.enabled) {
 		cudaMemcpy(&h_csSupportMismatch, d_csSupportMismatch,
 			sizeof(unsigned long long), cudaMemcpyDeviceToHost);
+	}
+	if (csConfig.enabled && runConfig.csTrackWeights) {
+		std::ofstream histogramLog(csWeightHistogramOss.str(), std::ios::out);
+		histogramLog << std::setprecision(12)
+			<< "bin,log10_lower,log10_upper,w,wstar_nps,wstar_source,wstar_fission,wstar_score,"
+			<< "ratio_nps,ratio_source,ratio_score\n";
+		for (int bin = 0; bin < CS_WEIGHT_HIST_BINS; ++bin) {
+			const double lower = bin == 0 ? -std::numeric_limits<double>::infinity()
+				: CS_WEIGHT_HIST_LOG10_MIN + static_cast<double>(bin - 1) * CS_WEIGHT_HIST_LOG10_WIDTH;
+			const double upper = bin == CS_WEIGHT_HIST_BINS - 1 ? std::numeric_limits<double>::infinity()
+				: CS_WEIGHT_HIST_LOG10_MIN + static_cast<double>(bin) * CS_WEIGHT_HIST_LOG10_WIDTH;
+			histogramLog << bin << "," << lower << "," << upper << ","
+				<< h_csWeightActive.referenceHistogram[bin] << ","
+				<< h_csWeightActive.npsHistogram[bin] << ","
+				<< h_csWeightActive.sourceHistogram[bin] << ","
+				<< h_csWeightActive.fissionHistogram[bin] << ","
+				<< h_csWeightActive.scoreHistogram[bin] << ","
+				<< h_csWeightActive.npsRatioHistogram[bin] << ","
+				<< h_csWeightActive.sourceRatioHistogram[bin] << ","
+				<< h_csWeightActive.scoreRatioHistogram[bin] << "\n";
+		}
+
+		std::ofstream summaryLog(csWeightSummaryOss.str(), std::ios::out);
+		summaryLog << std::setprecision(12)
+			<< "CS weight diagnostic (active cycles only)\n"
+			<< "Reference rod depth (cm): " << csConfig.referenceRodDepth << "\n"
+			<< "Perturbed rod depth (cm): " << csConfig.perturbedRodDepth << "\n"
+			<< "Source propagation level: " << csConfig.propagationGenerations << "\n"
+			<< "Fission-score observations (exact maxima/counters): " << h_csWeightActive.observations << "\n"
+			<< "Histogram observations (1/" << CS_WEIGHT_HIST_SAMPLE_STRIDE << " particle indices): "
+			<< h_csWeightActive.histogramObservations << "\n"
+			<< "Invalid observations: " << h_csWeightActive.invalidObservations << "\n\n"
+			<< "Definitions:\n"
+			<< "  w                  = reference physical particle weight\n"
+			<< "  wstar_nps          = w * exp(csLogLikelihood)\n"
+			<< "  wstar_source       = wstar_nps * R_L\n"
+			<< "  wstar_fission      = wstar_nps * (nuSigmaF*/nuSigmaF)\n"
+			<< "  wstar_score        = wstar_fission * R_L\n\n";
+
+		auto writeMetric = [&](const char* name, const unsigned long long* histogram,
+			double maximum, double ratioMaximum, unsigned long long aboveReference,
+			double increase, double decrease) {
+			summaryLog << name << ":\n"
+				<< "  p50/p90/p95/p99/p99.9/p99.99 = "
+				<< csHistogramPercentileBounded(histogram, 0.50, maximum) << " / "
+				<< csHistogramPercentileBounded(histogram, 0.90, maximum) << " / "
+				<< csHistogramPercentileBounded(histogram, 0.95, maximum) << " / "
+				<< csHistogramPercentileBounded(histogram, 0.99, maximum) << " / "
+				<< csHistogramPercentileBounded(histogram, 0.999, maximum) << " / "
+				<< csHistogramPercentileBounded(histogram, 0.9999, maximum) << "\n"
+				<< "  exact max = " << maximum << "\n";
+			if (ratioMaximum >= 0.0) {
+				summaryLog << "  exact max(value/w) = " << ratioMaximum << "\n"
+					<< "  fraction(value>w) = "
+					<< csFraction(aboveReference, h_csWeightActive.observations) << "\n"
+					<< "  max(value-w) / max(w-value) = " << increase << " / " << decrease << "\n";
+			}
+		};
+		writeMetric("w", h_csWeightActive.referenceHistogram,
+			h_csWeightActive.maxReferenceWeight, -1.0, 0ULL, 0.0, 0.0);
+		writeMetric("wstar_nps", h_csWeightActive.npsHistogram,
+			h_csWeightActive.maxNpsWeight, h_csWeightActive.maxNpsRatio,
+			h_csWeightActive.npsAboveReference, h_csWeightActive.maxNpsIncrease,
+			h_csWeightActive.maxNpsDecrease);
+		writeMetric("wstar_source", h_csWeightActive.sourceHistogram,
+			h_csWeightActive.maxSourceWeight, h_csWeightActive.maxSourceRatio,
+			h_csWeightActive.sourceAboveReference, h_csWeightActive.maxSourceIncrease,
+			h_csWeightActive.maxSourceDecrease);
+		writeMetric("wstar_fission", h_csWeightActive.fissionHistogram,
+			h_csWeightActive.maxFissionWeight, h_csWeightActive.maxFissionRatio,
+			h_csWeightActive.fissionAboveReference, h_csWeightActive.maxFissionIncrease,
+			h_csWeightActive.maxFissionDecrease);
+		writeMetric("wstar_score", h_csWeightActive.scoreHistogram,
+			h_csWeightActive.maxScoreWeight, h_csWeightActive.maxScoreRatio,
+			h_csWeightActive.scoreAboveReference, h_csWeightActive.maxScoreIncrease,
+			h_csWeightActive.maxScoreDecrease);
+
+		summaryLog << "\nApproximate sampled exceedance fractions for source-aware particle weight wstar_source:\n";
+		for (double threshold : {0.5, 1.0, 2.0, 5.0, 10.0}) {
+			summaryLog << "  > " << threshold << ": "
+				<< csHistogramFractionAbove(h_csWeightActive.sourceHistogram, threshold) << "\n";
+		}
+		summaryLog << "\nCandidate upper bounds from sampled wstar_source distribution:\n"
+			<< "  p99: " << csHistogramPercentileBounded(h_csWeightActive.sourceHistogram, 0.99, h_csWeightActive.maxSourceWeight) << "\n"
+			<< "  p99.9: " << csHistogramPercentileBounded(h_csWeightActive.sourceHistogram, 0.999, h_csWeightActive.maxSourceWeight) << "\n"
+			<< "  p99.99: " << csHistogramPercentileBounded(h_csWeightActive.sourceHistogram, 0.9999, h_csWeightActive.maxSourceWeight) << "\n";
+
+		std::cout << "CS weight diagnostics written to:\n"
+			<< "  " << csWeightCycleOss.str() << "\n"
+			<< "  " << csWeightHistogramOss.str() << "\n"
+			<< "  " << csWeightSummaryOss.str() << "\n";
 	}
 
 	std::cout << "Total Time: " << elapsed.count() << "seconds. Average: " << elapsed.count() / cycleNum << " seconds per cycle.\n";
@@ -1244,6 +1530,7 @@ int main(int argc, char** argv) {
 
 	klog.close();
 	if (csLog.is_open()) csLog.close();
+	if (csWeightCycleLog.is_open()) csWeightCycleLog.close();
 	fluxTallyLog.close();
 #ifdef C5G7_DUMP_FULL_CORE_PINWISE_TALLY
 	pinwiseTallyLog.close();
@@ -1299,6 +1586,7 @@ int main(int argc, char** argv) {
 	if (d_csSourceSums) cudaFree(d_csSourceSums);
 	if (d_csSourceCount) cudaFree(d_csSourceCount);
 	if (d_csSupportMismatch) cudaFree(d_csSupportMismatch);
+	if (d_csWeightDiagnostics) cudaFree(d_csWeightDiagnostics);
 
 	// Optional: reset device (helps detect leaks in some tools)
 	// this would really help

@@ -6,6 +6,7 @@
 #include "Core.cuh"
 #include "XSManager.cuh"
 #include "CoreManager.cuh"
+#include "CsWeightDiagnostics.cuh"
 
 //#define INTERACTIONDEBUG 
 //#define FISSIONPRINT
@@ -63,7 +64,9 @@ public:
 		double* csFissionScores,
 		double* csSourceSums,
 		double* csSourceCount,
-		unsigned long long* csSupportMismatch
+		unsigned long long* csSupportMismatch,
+		CsWeightDiagnostics* csWeightDiagnostics,
+		bool csHistogramSample
 	) {
 		
 		int g = static_cast<int>(n.energy);
@@ -96,10 +99,21 @@ public:
 				csValid = false;
 			}
 			else {
-				csFissionRatio = exp(n.csLogLikelihood) * perturbedNuSigmaF / referenceNuSigmaF;
+				const double fissionXsRatio = perturbedNuSigmaF / referenceNuSigmaF;
+				csFissionRatio = exp(n.csLogLikelihood) * fissionXsRatio;
 				if (!isfinite(csFissionRatio)) {
 					atomicAdd(csSupportMismatch, 1ULL);
 					csValid = false;
+				}
+				else if (csWeightDiagnostics != nullptr) {
+					const int selectedLevel = csConfig.propagationGenerations;
+					recordCsWeightDiagnostics(
+						csWeightDiagnostics,
+						csHistogramSample,
+						n.weight,
+						n.csLogLikelihood,
+						n.csSourceRatio[selectedLevel],
+						fissionXsRatio);
 				}
 			}
 
@@ -193,7 +207,9 @@ public:
 		double* csFissionScores,
 		double* csSourceSums,
 		double* csSourceCount,
-		unsigned long long* csSupportMismatch
+		unsigned long long* csSupportMismatch,
+		CsWeightDiagnostics* csWeightDiagnostics,
+		bool csHistogramSample
 	) {
 		MatType currentMat = currentPincell.meatOrMod(localPos);
 		double outEnergy = XSManager::scatteringEnergy(XSLib, currentMat, RNG, n.energy);
@@ -214,7 +230,9 @@ public:
 			csFissionScores,
 			csSourceSums,
 			csSourceCount,
-			csSupportMismatch
+			csSupportMismatch,
+			csWeightDiagnostics,
+			csHistogramSample
 		);
 
 		MatXS& xs = referenceXS;
